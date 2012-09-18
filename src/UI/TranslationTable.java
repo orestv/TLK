@@ -13,9 +13,7 @@ import tlkhandler.TLK;
  * @author seth
  */
 public class TranslationTable extends JTable {    
-    public TranslationTable(TLK tlk) {
-        this.setModel(new TranslationModel(tlk));
-        this.setEditingColumn(0);
+    public TranslationTable() {
     }
     public class TranslationModel extends AbstractTableModel {
         private TLK _tlk;

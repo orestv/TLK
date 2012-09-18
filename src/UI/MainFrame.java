@@ -28,7 +28,7 @@ public class MainFrame extends JFrame{
                 ""  //row
                 ));
         
-        TranslationTable table = new TranslationTable(null);
+        TranslationTable table = new TranslationTable();
         _mainPanel.add(table, "cell 1 0, growx");
         
         this.add(_mainPanel);
