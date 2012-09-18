@@ -26,7 +26,7 @@ public class TlkHandler {
                     + "String data starts at %d.", 
                     tlk.getHeader().getLanguageID(),
                     tlk.getHeader().getStringCount(),
-                    tlk.getHeader().getStringDataOffset()));
+                    tlk.getHeader().getStringEntriesOffset()));
         } catch (IOException ex) {
             Logger.getLogger(TlkHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
