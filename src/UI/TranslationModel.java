@@ -62,4 +62,14 @@ public class TranslationModel extends AbstractTableModel {
         }
         return null;
     }    
+
+    @Override
+    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+        super.setValueAt(aValue, rowIndex, columnIndex);
+        if (columnIndex != 2)
+            return;
+        int ref = (int)getValueAt(rowIndex, 0);
+        Entry entry = _tlk.getEntryByRef(ref);
+        entry.setTranslation((String)aValue);
+    }
 }
