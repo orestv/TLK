@@ -28,9 +28,8 @@ public class TLK {
         buf.order(ByteOrder.LITTLE_ENDIAN);
         buf.putInt(value);
     }
-    public static void load(DataStore ds, String filename) throws IOException {
-        File f = new File(filename);
-        try (RandomAccessFile raf = new RandomAccessFile(f, "r");) {
+    public static void load(DataStore ds, File file) throws IOException {
+        try (RandomAccessFile raf = new RandomAccessFile(file, "r");) {
             byte[] headerBytes = new byte[Header.LENGTH];
             raf.read(headerBytes);
             Header header = new Header(headerBytes);
@@ -66,12 +65,11 @@ public class TLK {
             }
         }
     }
-    public static void save(DataStore ds, String filename) throws IOException {
+    public static void save(DataStore ds, File file) throws IOException {
         int dataOffset = ds.formalSize() * Entry.LENGTH + Header.LENGTH;
         Header header = new Header(0, ds.formalSize(), dataOffset);
         Charset charset = Charset.forName("Windows-1251");
-        File f = new File(filename);
-        try (RandomAccessFile raf = new RandomAccessFile(f, "rw")) {
+        try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
             raf.write(header.getBytes());
             int currentStringOffset = 0;            
             for (int i = 0; i < ds.formalSize(); i++) {

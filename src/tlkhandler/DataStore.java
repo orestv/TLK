@@ -21,6 +21,11 @@ public class DataStore {
         if (!entry.isEmpty())
             _entries.add(entry);
     }
+    public void clear() {
+        _entries.clear();
+        _entriesInternal.clear();
+        _formalSize = 0;
+    }
     public Entry get(int index) {
         if (index >= _entries.size())
             return null;
