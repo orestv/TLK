@@ -7,6 +7,8 @@ package UI;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Toolkit;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,10 +26,24 @@ import tlkhandler.TLK;
  */
 public class MainFrame extends JFrame{
     private JPanel _mainPanel;
+    private final DataStore _ds = new DataStore();
     
     public MainFrame() {
         init();
         positionAtCenter();
+        addWindowListener(new WindowAdapter() {
+
+            @Override
+            public void windowClosing(WindowEvent e) {
+                super.windowClosing(e);
+                try {
+                    TLK.save(_ds, "D:\\tlk\\dialog_generated.tlk");
+                } catch (IOException ex) {
+                    Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+
+        });
     }
     
     private void init() {
@@ -35,14 +51,13 @@ public class MainFrame extends JFrame{
                 "[15%][60%][15%]", //column
                 "[90%][10%]"  //row
                 ));        
-        DataStore ds = new DataStore();
         try {
-            TLK.load(ds, "D:\\tlk\\dialog.tlk");
+            TLK.load(_ds, "D:\\tlk\\dialog_natalias_1251-1300_short.tlk");
         } catch (IOException ex) {
             Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
-        TranslationTable table = new TranslationTable();        
-        table.setModel(new TranslationModel(ds));
+        TranslationTable table = new TranslationTable();
+        table.setModel(new TranslationModel(_ds));
         JScrollPane scrollPane = new JScrollPane(table);
         _mainPanel.add(scrollPane, "cell 1 0, grow, span 1 2");
         
