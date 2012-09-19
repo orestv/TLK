@@ -5,18 +5,11 @@
 package UI;
 
 import java.awt.Dimension;
-import java.awt.Frame;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -25,8 +18,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import net.miginfocom.swing.MigLayout;
 import tlkhandler.DataStore;
@@ -40,6 +31,10 @@ public class MainFrame extends JFrame implements ActionListener{
     private JPanel _mainPanel;
     private final TranslationTable _translationTable = new TranslationTable();
     private final DataStore _ds = new DataStore();
+    private final static FileNameExtensionFilter FilterTLK = new FileNameExtensionFilter("NeverWinter Nights Dialog Files", "tlk");
+    private final static FileNameExtensionFilter FilterTDS = new FileNameExtensionFilter("NeverWinter Nights Translation File", "tds");
+
+    private File _currentFile = null;
     
     public MainFrame() {
         init();
@@ -95,19 +90,34 @@ public class MainFrame extends JFrame implements ActionListener{
             TLK.load(_ds, inputFile);
             _translationTable.setModel(new TranslationModel(_ds));
         } catch (IOException ex) {
-            JOptionPane.showMessageDialog(this, "Failed to parse input file");
+            JOptionPane.showMessageDialog(this, "Failed to parse input file", "Import error", JOptionPane.ERROR_MESSAGE);
         }
     }
     private void save() {
-
+        if (_currentFile != null) {
+            try {
+                _ds.save(_currentFile);
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(this, "Failed to save file!", "Save error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+        else
+            saveAs();
     }
     private void saveAs() {
-        
+        JFileChooser chooser = new JFileChooser();
+        chooser.setFileFilter(FilterTDS);
+        chooser.setAcceptAllFileFilterUsed(false);
+        chooser.setMultiSelectionEnabled(false);
+        if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+            _currentFile = chooser.getSelectedFile();
+            save();
+        }
     }
 
     private void commandImport() {
         JFileChooser chooser = new JFileChooser();
-        chooser.setFileFilter(new FileNameExtensionFilter("NeverWinter Nights Dialog Files", "tlk"));
+        chooser.setFileFilter(FilterTLK);
         chooser.setAcceptAllFileFilterUsed(false);
         if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
             importTLK(chooser.getSelectedFile());
@@ -118,6 +128,10 @@ public class MainFrame extends JFrame implements ActionListener{
         String actionCommand = e.getActionCommand();
         if (actionCommand.equals("Import"))
             commandImport();
+        else if (actionCommand.equals("Save"))
+            save();
+        else if (actionCommand.equals("Save As"))
+            saveAs();
     }
 
     private static class MenuItemInfo {

@@ -4,8 +4,13 @@
  */
 package tlkhandler;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import javax.xml.bind.DatatypeConverter;
 
 /**
  *
@@ -15,6 +20,7 @@ public class DataStore {
     private final ArrayList<Entry> _entries = new ArrayList<>();
     private final ArrayList<Entry> _entriesInternal = new ArrayList<>();
     private int _formalSize;
+    private final static String separator = " / ";
     
     public void add(Entry entry) {
         _entriesInternal.add(entry);
@@ -50,6 +56,18 @@ public class DataStore {
     }
     public void setFormalSize(int formalSize) {
         _formalSize = formalSize;
+    }
+
+    public void save(File file) throws IOException {
+        try (BufferedWriter wr = new BufferedWriter(new FileWriter(file))) {
+            for (Entry entry : _entriesInternal) {
+                wr.write(entry.toString());
+                wr.newLine();
+            }
+        }
+    }
+    public void load(File file) {
+        clear();
     }
 
     public static class Entry {
@@ -94,6 +112,10 @@ public class DataStore {
         }
         public boolean isEmpty() {
             return _original == null || _original.isEmpty();
+        }
+
+        public String toString() {
+            return String.format("%d / %s / %s", _strref, DatatypeConverter.printBase64Binary(_headerBytes), _translation);
         }
     }
 }
