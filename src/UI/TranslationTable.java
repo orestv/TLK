@@ -5,43 +5,21 @@
 package UI;
 
 import javax.swing.JTable;
-import javax.swing.table.AbstractTableModel;
-import tlkhandler.TLK;
+import javax.swing.event.TableColumnModelEvent;
 
 /**
  *
  * @author seth
  */
 public class TranslationTable extends JTable {    
-    public TranslationTable() {
+    public TranslationTable() {        
     }
-    public class TranslationModel extends AbstractTableModel {
-        private TLK _tlk;
-        
-        public TranslationModel(TLK tlk) {
-            _tlk = tlk;
-        }
-        
-        @Override
-        public int getRowCount() {
-            return 5;
-        }
 
-        @Override
-        public int getColumnCount() {
-            return 2;
-        }
-
-        @Override
-        public Object getValueAt(int row, int col) {
-            return row * col;
-        }
-
-        @Override
-        public boolean isCellEditable(int rowIndex, int columnIndex) {
-            return true;
-        }
-        
+    @Override
+    public void columnAdded(TableColumnModelEvent e) {
+        super.columnAdded(e);
+        getColumnModel().getColumn(0).setMaxWidth(150);
+        getColumnModel().getColumn(0).setPreferredWidth(50);
     }
     
 }

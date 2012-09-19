@@ -10,6 +10,7 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -19,6 +20,9 @@ import java.util.Arrays;
 public class TLK {
     private String _filename;
     private Header _header;
+    private int _entriesCount;
+    private final ArrayList<Entry> _entries = new ArrayList<>();
+    
     
     public TLK(String sFilename) {
         _filename = sFilename;
@@ -36,18 +40,30 @@ public class TLK {
             byte[] headerBytes = new byte[Header.LENGTH];
             raf.read(headerBytes);
             _header = new Header(headerBytes);
-            byte[] stringDataBytes = new byte[Data.LENGTH];
+            byte[] stringDataBytes = new byte[Entry.LENGTH];
+            int index = 0;
+            _entriesCount = 0;
             while (raf.getFilePointer() < _header.getStringEntriesOffset()) {
                 raf.read(stringDataBytes);
-                Data data = new Data(stringDataBytes);
-                long currentOffset = raf.getFilePointer();
-                raf.seek(_header.getStringEntriesOffset() + data.getEntryOffset());
-                byte[] entryBytes = new byte[data.getStringSize()];
-                raf.read(entryBytes);
-                raf.seek(currentOffset);
-                String entryText = Charset.forName("Windows-1251").decode(ByteBuffer.wrap(entryBytes)).toString();
-                System.out.println(String.format("String offset is %d, length is %d, data is %s.", 
-                        data.getEntryOffset(), data.getStringSize(), entryText));
+                Entry entry = new Entry(stringDataBytes);
+                if (entry.getStringSize() > 0) {
+                    long currentOffset = raf.getFilePointer();
+                    raf.seek(_header.getStringEntriesOffset() + entry.getEntryOffset());
+                    byte[] entryBytes = new byte[entry.getStringSize()];
+                    raf.read(entryBytes);
+                    raf.seek(currentOffset);
+                    String entryText = Charset.forName("Windows-1251").decode(ByteBuffer.wrap(entryBytes)).toString();
+                    entry.setValue(entryText);
+                    entry.setTranslation(entryText);
+                    entry.setStrRef(_entriesCount);
+                    _entries.add(entry);
+                    _entriesCount++;
+                    
+                }
+                else {
+//                    System.out.println("Empty entry found at " + Integer.toString(_entriesCount));
+                }                    
+                index++;
             }
         }
     }
@@ -58,6 +74,18 @@ public class TLK {
     }
     public Header getHeader() {
         return _header;
+    }
+    public int getEntriesCount() {
+        return _entriesCount;
+    }
+    public Entry getEntry(int index) {        
+        return _entries.get(index);
+    }
+    public Entry getEntryByRef(int ref) {
+        for (Entry d : _entries)
+            if (d.getStrRef() == ref)
+                return d;
+        return null;
     }
     
     //classes
@@ -83,13 +111,16 @@ public class TLK {
             return getDword(_content, OFFSET_STRING_ENTRIES_OFFSET);
         }
     }
-    public class Data {
+    public class Entry {
         public final static int LENGTH = 40;
         private final static int OFFSET_STRING_OFFSET = 28;
         private final static int OFFSET_STRING_SIZE = 32;
         private final byte[] _content;
+        private String _value = "";
+        private String _translation = "";
+        private int _strref;
         
-        public Data(byte[] content) {
+        public Entry(byte[] content) {
             _content = Arrays.copyOf(content, content.length);
         }
         
@@ -99,5 +130,28 @@ public class TLK {
         public int getStringSize() {
             return getDword(_content, OFFSET_STRING_SIZE);
         }
+
+        public String getValue() {
+            return _value;
+        }
+
+        public void setValue(String value) {
+            this._value = value;
+        }
+
+        public String getTranslation() {
+            return _translation;
+        }
+
+        public void setTranslation(String translation) {
+            this._translation = translation;
+        }
+        public int getStrRef() {
+            return _strref;
+        }
+        public void setStrRef(int strref) {
+            _strref = strref;
+        }
+        
     }
 }
