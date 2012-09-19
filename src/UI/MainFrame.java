@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import net.miginfocom.swing.MigLayout;
+import tlkhandler.DataStore;
 import tlkhandler.TLK;
 
 /**
@@ -33,15 +34,15 @@ public class MainFrame extends JFrame{
         _mainPanel = new JPanel(new MigLayout("debug", 
                 "[15%][60%][15%]", //column
                 "[90%][10%]"  //row
-                ));
-        TLK tlk = new TLK("D:\\tlk\\dialog.tlk");
+                ));        
+        DataStore ds = new DataStore();
         try {
-            tlk.load();
+            TLK.load(ds, "D:\\tlk\\dialog.tlk");
         } catch (IOException ex) {
             Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
-        TranslationTable table = new TranslationTable();
-        table.setModel(new TranslationModel(tlk));
+        TranslationTable table = new TranslationTable();        
+        table.setModel(new TranslationModel(ds));
         JScrollPane scrollPane = new JScrollPane(table);
         _mainPanel.add(scrollPane, "cell 1 0, grow, span 1 2");
         

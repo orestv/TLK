@@ -5,23 +5,23 @@
 package UI;
 
 import javax.swing.table.AbstractTableModel;
-import tlkhandler.TLK;
-import tlkhandler.TLK.Entry;
+import tlkhandler.DataStore;
+import tlkhandler.DataStore.Entry;
 
 /**
  *
  * @author ovoloshchuk
  */
 public class TranslationModel extends AbstractTableModel {
-    private TLK _tlk;
+    private DataStore _dataStore;
 
-    public TranslationModel(TLK tlk) {
-        _tlk = tlk;
+    public TranslationModel(DataStore dataStore) {
+        _dataStore = dataStore;
     }
 
     @Override
     public int getRowCount() {
-        return _tlk == null ? 0 : _tlk.getEntriesCount();
+        return _dataStore.size();
     }
 
     @Override
@@ -31,16 +31,16 @@ public class TranslationModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int row, int col) {
-        Entry d = _tlk.getEntry(row);
-        if (d == null)
+        DataStore.Entry e = _dataStore.get(row);
+        if (e == null)
             return null;
         switch(col) {
             case 0:
-                return d.getStrRef();
+                return e.getStrref();
             case 1:
-                return d.getValue();
+                return e.getOriginal();
             case 2:
-                return d.getTranslation();
+                return e.getTranslation();
         }
         return null;
     }
@@ -69,7 +69,7 @@ public class TranslationModel extends AbstractTableModel {
         if (columnIndex != 2)
             return;
         int ref = (int)getValueAt(rowIndex, 0);
-        Entry entry = _tlk.getEntryByRef(ref);
+        Entry entry = _dataStore.getByRef(ref);
         entry.setTranslation((String)aValue);
     }
 }
